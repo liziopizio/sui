@@ -25,7 +25,8 @@ scripts/simtest/cargo-simtest simtest \
   --package sui \
   --test-threads "$NUM_CPUS" \
   --package sui-core \
-  --profile simtestnightly
+  --profile simtestnightly \
+  -E "$TEST_FILTER"
 
 # create logs directory
 SIMTEST_LOGS_DIR=~/simtest_logs
