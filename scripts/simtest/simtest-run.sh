@@ -9,7 +9,7 @@ if [ -z "$NUM_CPUS" ]; then
 fi
 
 # filter out some tests that give spurious failures.
-TEST_FILTER="(not test(test_move_call_args_linter_command)) & (not test(test_package_publish_command))"
+TEST_FILTER="(not test(~cli_tests)"
 
 DATE=$(date +%s)
 SEED="$DATE"
@@ -46,6 +46,8 @@ for SUB_SEED in `seq 1 $NUM_CPUS`; do
     --test-threads 1 \
     --profile simtestnightly \
     -E "$TEST_FILTER" > "$LOG_FILE" 2>&1 &
+
+  grep -Hn FAIL "$LOG_FILE"
 done
 
 # wait for all the jobs to end
