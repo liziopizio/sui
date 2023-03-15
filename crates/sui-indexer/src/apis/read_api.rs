@@ -446,7 +446,7 @@ where
 
     async fn get_checkpoints(
         &self,
-        cursor: Option<usize>,
+        cursor: Option<CheckpointSequenceNumber>,
         limit: Option<usize>,
         descending_order: bool,
     ) -> RpcResult<CheckpointPage> {
