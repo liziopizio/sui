@@ -37,7 +37,7 @@ use std::{
 use sui_adapter::execution_engine;
 use sui_adapter::{adapter::new_move_vm, execution_mode};
 use sui_core::transaction_input_checker::check_objects;
-use sui_framework::{make_std_sui_move_pkgs, DEFAULT_FRAMEWORK_PATH};
+use sui_framework::{make_system_modules, make_system_objects, DEFAULT_FRAMEWORK_PATH};
 use sui_protocol_config::ProtocolConfig;
 use sui_types::clock::Clock;
 use sui_types::gas::{GasCostSummary, SuiCostTable};
@@ -54,7 +54,7 @@ use sui_types::{
         ExecutionStatus, TransactionData, TransactionDataAPI, TransactionEffectsAPI,
         VerifiedTransaction,
     },
-    object::{self, Data, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
+    object::{self, Object, ObjectFormatOptions, GAS_VALUE_FOR_TESTING},
     object::{MoveObject, Owner},
     MOVE_STDLIB_ADDRESS, MOVE_STDLIB_OBJECT_ID, SUI_CLOCK_OBJECT_ID,
     SUI_CLOCK_OBJECT_SHARED_VERSION, SUI_FRAMEWORK_ADDRESS, SUI_FRAMEWORK_OBJECT_ID,
@@ -123,21 +123,10 @@ pub fn get_framework_object_ref() -> ObjectRef {
 
 /// Create and return objects wrapping the genesis modules for sui
 fn create_genesis_module_objects() -> Genesis {
-    let sui_modules = sui_framework::get_sui_framework();
-    let std_modules = sui_framework::get_move_stdlib();
-    let objects = vec![create_clock()];
-    let (std_move_pkg, sui_move_pkg) = make_std_sui_move_pkgs();
-    let std_pkg =
-        Object::new_package_from_data(Data::Package(std_move_pkg), TransactionDigest::genesis());
-    let sui_pkg =
-        Object::new_package_from_data(Data::Package(sui_move_pkg), TransactionDigest::genesis());
-
-    let packages = vec![std_pkg, sui_pkg];
-    let modules = vec![std_modules, sui_modules];
     Genesis {
-        objects,
-        packages,
-        modules,
+        objects: vec![create_clock()],
+        packages: make_system_objects(),
+        modules: make_system_modules(),
     }
 }
 
