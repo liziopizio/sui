@@ -214,19 +214,13 @@ module sui::validator_set {
         table_vec::push_back(&mut self.pending_active_validators, validator);
     }
 
-    public(friend) fun assert_no_pending_duplicates(self: &mut ValidatorSet, ctx: &mut TxContext) {
-        let validator_address = tx_context::sender(ctx);
+    public(friend) fun assert_no_pending_duplicates(self: &ValidatorSet, validator: &Validator) {
         assert!(
-            table::contains(&self.pending_active_validators, validator_address),
-            ENotActiveOrPendingValidator
-        );
-        let validator = table::remove(&mut self.pending_active_validators, validator_address);
-        assert!(
-            !is_duplicate_with_active_validator(self, &validator)
-                && !is_duplicate_with_pending_validator(self, &validator),
+            // Should always includes only the current validator.
+            count_duplicate_with_pending_validator(self, validator) == 1 &&
+            count_duplicate_with_active_validator(self, validator) == 0,
             EDuplicateValidator
         );
-        table::add(&mut self.pending_active_validators, validator_address, validator);
     }
 
     /// Called by `sui_system`, to remove a validator.
@@ -537,34 +531,45 @@ module sui::validator_set {
 
     // ==== private helpers ====
 
+    fun count_duplicate_with_active_validator(self: &ValidatorSet, new_validator: &Validator): u64 {
+        let len = vector::length(&self.active_validators);
+        let i = 0;
+        let result = 0;
+        while (i < len) {
+            let v = vector::borrow(&self.active_validators, i);
+            if (validator::is_duplicate(v, new_validator)) {
+                result = result + 1;
+            };
+            i = i + 1;
+        };
+        result
+    }
+
     /// Checks whether `new_validator` is duplicate with any currently active validators.
     /// It differs from `is_active_validator_by_sui_address` in that the former checks
     /// only the sui address but this function looks at more metadata.
     fun is_duplicate_with_active_validator(self: &ValidatorSet, new_validator: &Validator): bool {
-        let len = vector::length(&self.active_validators);
+        count_duplicate_with_active_validator(self, new_validator) > 0
+    }
+
+    /// Checks whether `new_validator` is duplicate with any currently pending validators.
+    fun count_duplicate_with_pending_validator(self: &ValidatorSet, new_validator: &Validator): u64 {
+        let len = table_vec::length(&self.pending_active_validators);
         let i = 0;
+        let result = 0;
         while (i < len) {
-            let v = vector::borrow(&self.active_validators, i);
+            let v = table_vec::borrow(&self.pending_active_validators, i);
             if (validator::is_duplicate(v, new_validator)) {
-                return true
+                result = result + 1;
             };
             i = i + 1;
         };
-        false
+        result
     }
 
     /// Checks whether `new_validator` is duplicate with any currently pending validators.
     fun is_duplicate_with_pending_validator(self: &ValidatorSet, new_validator: &Validator): bool {
-        let len = table_vec::length(&self.pending_active_validators);
-        let i = 0;
-        while (i < len) {
-            let v = table_vec::borrow(&self.pending_active_validators, i);
-            if (validator::is_duplicate(v, new_validator)) {
-                return true
-            };
-            i = i + 1;
-        };
-        false
+        count_duplicate_with_pending_validator(self, new_validator) > 0
     }
 
     /// Get mutable reference to either a candidate or an active validator by address.
