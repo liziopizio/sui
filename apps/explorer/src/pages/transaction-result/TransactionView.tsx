@@ -21,14 +21,14 @@ import { useMemo, useState } from 'react';
 //     eventToDisplay,
 //     getAddressesLinks,
 // } from '../../components/events/eventDisplay';
-import Pagination from '../../../components/pagination/Pagination';
-import { getAmount } from '../../../utils/getAmount';
-import { Signatures } from '../Signatures';
-import TxLinks from '../TxLinks';
+import Pagination from '../../components/pagination/Pagination';
+import { getAmount } from '../../utils/getAmount';
+import { Signatures } from './Signatures';
+import TxLinks from './TxLinks';
 
-import styles from '../TransactionResult.module.css';
+import styles from './TransactionResult.module.css';
 
-import { ProgrammableTransactionView } from '~/pages/transaction-result/transaction-view/ProgrammableTransactionView';
+import { ProgrammableTransactionView } from '~/pages/transaction-result/programmable-transaction-view';
 import { Banner } from '~/ui/Banner';
 import { DateCard } from '~/ui/DateCard';
 import { DescriptionItem, DescriptionList } from '~/ui/DescriptionList';

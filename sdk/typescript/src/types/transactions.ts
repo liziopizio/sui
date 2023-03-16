@@ -88,6 +88,7 @@ export const ProgrammableTransaction = object({
   inputs: array(SuiJsonValue),
 });
 export type ProgrammableTransaction = Infer<typeof ProgrammableTransaction>;
+export type ProgrammableTransactionCommand = Infer<typeof SuiCommand>;
 
 /**
  * 1. WaitForEffectsCert: waits for TransactionEffectsCert and then returns to the client.

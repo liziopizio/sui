@@ -3,7 +3,7 @@
 
 import { useParams } from 'react-router-dom';
 
-import { TransactionView } from './transaction-view';
+import { TransactionView } from './TransactionView';
 
 import { useGetTransaction } from '~/hooks/useGetTransaction';
 import { Banner } from '~/ui/Banner';
