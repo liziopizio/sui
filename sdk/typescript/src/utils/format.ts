@@ -13,5 +13,5 @@ export function formatAddress(address: string) {
 
 export function formatDigest(digest: string) {
   // Use 10 first characters
-  return `${digest.slice(0, 10)}${ELLIPSIS}`;
+  return `${digest.slice(0, 10)}${ELLIPSIS}${digest.slice(-4)}`;
 }
