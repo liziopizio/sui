@@ -78,8 +78,6 @@ use sui_types::sui_system_state::SuiSystemState;
 use sui_types::sui_system_state::SuiSystemStateTrait;
 pub use sui_types::temporary_store::TemporaryStore;
 use sui_types::temporary_store::{InnerTemporaryStore, TemporaryModuleResolver};
-use sui_types::MOVE_STDLIB_OBJECT_ID;
-use sui_types::SUI_FRAMEWORK_OBJECT_ID;
 use sui_types::{
     base_types::*,
     committee::Committee,
