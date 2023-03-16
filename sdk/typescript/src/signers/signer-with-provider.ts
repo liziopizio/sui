@@ -85,7 +85,11 @@ export abstract class SignerWithProvider implements Signer {
     let transactionBytes;
 
     if (Transaction.is(input.transaction)) {
-      input.transaction.setSender(await this.getAddress());
+      // If the sender has not yet been set on the transaction, then set it.
+      // NOTE: This allows for signing transactions with mis-matched senders, which is important for sponsored transactions.
+      if (!input.transaction.transactionData.sender) {
+        input.transaction.setSender(await this.getAddress());
+      }
       transactionBytes = await input.transaction.build({
         provider: this.provider,
       });
