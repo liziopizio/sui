@@ -218,8 +218,7 @@ module sui::validator {
             vector::length(&net_address) <= 128
                 && vector::length(&p2p_address) <= 128
                 && vector::length(&name) <= 128
-                && vector::length(&description) <= 150
-                && vector::length(&protocol_pubkey_bytes) <= 128,
+                && vector::length(&description) <= 150,
             0
         );
         assert!(commission_rate <= MAX_COMMISSION_RATE, ECommissionRateTooHigh);
@@ -240,6 +239,7 @@ module sui::validator {
             worker_address,
         );
 
+        // Checks that the keys & addresses and PoP are valid.
         validate_metadata(&metadata);
 
         new_from_metadata(
@@ -535,6 +535,43 @@ module sui::validator {
             || self.metadata.net_address == other.metadata.net_address
             || self.metadata.p2p_address == other.metadata.p2p_address
             || self.metadata.protocol_pubkey_bytes == other.metadata.protocol_pubkey_bytes
+            || self.metadata.network_pubkey_bytes == other.metadata.network_pubkey_bytes
+            || self.metadata.worker_pubkey_bytes == other.metadata.worker_pubkey_bytes
+            // All next epoch parameters.
+            || is_equal_some(&self.metadata.next_epoch_net_address,&other.metadata.next_epoch_net_address)
+            || is_equal_some(&self.metadata.next_epoch_p2p_address,&other.metadata.next_epoch_p2p_address)
+            || is_equal_some(&self.metadata.next_epoch_protocol_pubkey_bytes,&other.metadata.next_epoch_protocol_pubkey_bytes)
+            || is_equal_some(&self.metadata.next_epoch_network_pubkey_bytes,&other.metadata.next_epoch_network_pubkey_bytes)
+            || is_equal_some(&self.metadata.next_epoch_worker_pubkey_bytes,&other.metadata.next_epoch_worker_pubkey_bytes)
+            // My next epoch parameters with other current epoch parameters.
+            || is_equal_some_and_value(&self.metadata.next_epoch_net_address,&other.metadata.net_address)
+            || is_equal_some_and_value(&self.metadata.next_epoch_p2p_address,&other.metadata.p2p_address)
+            || is_equal_some_and_value(&self.metadata.next_epoch_protocol_pubkey_bytes,&other.metadata.protocol_pubkey_bytes)
+            || is_equal_some_and_value(&self.metadata.next_epoch_network_pubkey_bytes,&other.metadata.network_pubkey_bytes)
+            || is_equal_some_and_value(&self.metadata.next_epoch_worker_pubkey_bytes,&other.metadata.worker_pubkey_bytes)
+            // Other next epoch parameters with my current epoch parameters.
+            || is_equal_some_and_value(&other.metadata.next_epoch_net_address,&self.metadata.net_address)
+            || is_equal_some_and_value(&other.metadata.next_epoch_p2p_address,&self.metadata.p2p_address)
+            || is_equal_some_and_value(&other.metadata.next_epoch_protocol_pubkey_bytes,&self.metadata.protocol_pubkey_bytes)
+            || is_equal_some_and_value(&other.metadata.next_epoch_network_pubkey_bytes,&self.metadata.network_pubkey_bytes)
+            || is_equal_some_and_value(&other.metadata.next_epoch_worker_pubkey_bytes,&self.metadata.worker_pubkey_bytes)
+        // What about primary_address & worker_address?
+    }
+
+    fun is_equal_some_and_value<T>(a: &Option<T>, b: &T): bool {
+        if (option::is_none(a)) {
+            false
+        } else {
+            option::borrow(a) == b
+        }
+    }
+
+    fun is_equal_some<T>(a: &Option<T>, b: &Option<T>): bool {
+        if (option::is_none(a) || option::is_none(b)) {
+            false
+        } else {
+            option::borrow(a) == option::borrow(b)
+        }
     }
 
     // ==== Validator Metadata Management Functions ====
@@ -630,7 +667,6 @@ module sui::validator {
     /// Update protocol public key of this candidate validator
     public(friend) fun update_candidate_protocol_pubkey(self: &mut Validator, protocol_pubkey: vector<u8>, proof_of_possession: vector<u8>) {
         assert!(is_preactive(self), ENotValidatorCandidate);
-        // TODO move proof of possession verification to the native function
         self.metadata.protocol_pubkey_bytes = protocol_pubkey;
         self.metadata.proof_of_possession = proof_of_possession;
         validate_metadata(&self.metadata);
