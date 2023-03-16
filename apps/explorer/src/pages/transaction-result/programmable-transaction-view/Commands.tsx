@@ -35,7 +35,7 @@ export function Commands({ commands }: Props) {
                 className={clsx([styles.txcomponent, styles.txgridcolspan2])}
             >
                 <TableHeader>Commands</TableHeader>
-                <ul className="flex flex-col gap-y-3">
+                <ul className="flex flex-col gap-8">
                     {commands.map((command, index) => {
                         const commandName = Object.keys(command)[0];
                         const commandData: any =
