@@ -34,7 +34,7 @@ pub const CONSENSUS_COMMIT_PROLOGUE_FUNCTION_NAME: &IdentStr =
 pub const INIT_SYSTEM_STATE_VERSION: u64 = 1;
 
 /// Rust version of the Move sui::sui_system::SuiSystemState type
-/// This repreents the object with 0x5 ID.
+/// This represents the object with 0x5 ID.
 /// In Rust, this type should be rarely used since it's just a thin
 /// wrapper used to access the inner object.
 /// Within this module, we use it to determine the current version of the system state inner object type,
@@ -80,6 +80,8 @@ pub trait SuiSystemStateTrait {
 #[enum_dispatch(SuiSystemStateTrait)]
 pub enum SuiSystemState {
     V1(SuiSystemStateInnerV1),
+    #[cfg(msim)]
+    V2(SuiSystemStateInnerV1),
 }
 
 /// This is the fixed type used by genesis.
@@ -98,12 +100,14 @@ impl SuiSystemState {
     pub fn into_genesis_version(self) -> SuiSystemStateInnerGenesis {
         match self {
             SuiSystemState::V1(inner) => inner,
+            _ => unreachable!(),
         }
     }
 
     pub fn into_benchmark_version(self) -> SuiSystemStateInnerBenchmark {
         match self {
             SuiSystemState::V1(inner) => inner,
+            _ => unreachable!(),
         }
     }
 
@@ -207,6 +211,13 @@ where
 }
 
 pub fn get_sui_system_state_version(_protocol_version: ProtocolVersion) -> u64 {
+    #[cfg(msim)]
+    {
+        if _protocol_version == ProtocolVersion::MAX_ALLOWED {
+            return 2;
+        }
+    }
+
     INIT_SYSTEM_STATE_VERSION
 }
 
