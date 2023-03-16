@@ -46,7 +46,7 @@ pub struct InnerTemporaryStore {
     pub written: BTreeMap<ObjectID, (ObjectRef, Object, WriteKind)>,
     pub deleted: BTreeMap<ObjectID, (SequenceNumber, DeleteKind)>,
     pub events: TransactionEvents,
-    max_binary_format_version: u32,
+    pub max_binary_format_version: u32,
 }
 
 impl InnerTemporaryStore {

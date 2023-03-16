@@ -2940,9 +2940,13 @@ impl AuthorityState {
             .try_as_package_mut()
             .expect("Created as package");
 
-        let cur_normalized = cur_pkg
-            .normalize(max_binary_format_version)
-            .expect("Normalize existing package");
+        let cur_normalized = match cur_pkg.normalize(max_binary_format_version) {
+            Ok(v) => v,
+            Err(e) => {
+                error!("Could not normalize existing package: {e:?}");
+                return None;
+            }
+        };
         let mut new_normalized = new_pkg.normalize(max_binary_format_version).ok()?;
 
         for (name, cur_module) in cur_normalized {

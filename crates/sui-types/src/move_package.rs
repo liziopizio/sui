@@ -391,10 +391,10 @@ impl MovePackage {
             .ok_or_else(|| SuiError::ModuleNotFound {
                 module_name: module.to_string(),
             })?;
-        Ok(
-            CompiledModule::deserialize_with_max_version(bytes, max_binary_format_version).expect(
-                "Unwrap safe because Sui serializes/verifies modules before publishing them",
-            ),
+        CompiledModule::deserialize_with_max_version(bytes, max_binary_format_version).map_err(
+            |error| SuiError::ModuleDeserializationFailure {
+                error: error.to_string(),
+            },
         )
     }
 

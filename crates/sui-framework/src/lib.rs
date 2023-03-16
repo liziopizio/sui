@@ -19,8 +19,8 @@ pub mod natives;
 
 static SUI_FRAMEWORK_BYTES: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/sui-framework"));
 static SUI_FRAMEWORK: Lazy<Vec<CompiledModule>> = Lazy::new(|| {
-    // TODO: deserialization uses VERSION_MAX of supported Move bytecode version rather than the max
-    // supported by the framework; it should be OK here but make sure
+    // deserialization here uses overall max version of supported Move bytecode rather than the max
+    // supported by the framework but it's OK
     get_sui_framework_bytes()
         .into_iter()
         .map(|module| CompiledModule::deserialize(&module).unwrap())
@@ -33,8 +33,8 @@ static SUI_FRAMEWORK_TEST: Lazy<Vec<CompiledModule>> = Lazy::new(|| {
 
     let serialized_modules: Vec<Vec<u8>> = bcs::from_bytes(SUI_FRAMEWORK_TEST_BYTES).unwrap();
 
-    // TODO: deserialization uses VERSION_MAX of supported Move bytecode version rather than the max
-    // supported by the framework; it should be OK here but make sure
+    // deserialization here uses overall max version of supported Move bytecode rather than the max
+    // supported by the framework but it's OK
     serialized_modules
         .into_iter()
         .map(|module| CompiledModule::deserialize(&module).unwrap())
@@ -43,8 +43,8 @@ static SUI_FRAMEWORK_TEST: Lazy<Vec<CompiledModule>> = Lazy::new(|| {
 
 static MOVE_STDLIB_BYTES: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/move-stdlib"));
 static MOVE_STDLIB: Lazy<Vec<CompiledModule>> = Lazy::new(|| {
-    // TODO: deserialization uses VERSION_MAX of supported Move bytecode version rather than the max
-    // supported by the framework; it should be OK here but make sure
+    // deserialization here uses overall max version of supported Move bytecode rather than the max
+    // supported by the framework but it's OK
     get_move_stdlib_bytes()
         .into_iter()
         .map(|module| CompiledModule::deserialize(&module).unwrap())
@@ -57,8 +57,8 @@ static MOVE_STDLIB_TEST: Lazy<Vec<CompiledModule>> = Lazy::new(|| {
 
     let serialized_modules: Vec<Vec<u8>> = bcs::from_bytes(MOVE_STDLIB_TEST_BYTES).unwrap();
 
-    // TODO: deserialization uses VERSION_MAX of supported Move bytecode version rather than the max
-    // supported by the framework; it should be OK here but make sure
+    // deserialization here uses overall max version of supported Move bytecode rather than the max
+    // supported by the framework but it's OK
     serialized_modules
         .into_iter()
         .map(|module| CompiledModule::deserialize(&module).unwrap())
