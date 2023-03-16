@@ -30,6 +30,7 @@ use rand::{
 use serde_json::json;
 use tracing::info;
 
+use sui_framework::{make_system_objects, make_system_packages};
 use sui_json_rpc_types::{
     SuiArgument, SuiExecutionResult, SuiExecutionStatus, SuiGasCostSummary,
     SuiTransactionEffectsAPI, SuiTypeTag,
