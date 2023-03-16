@@ -44,7 +44,7 @@ export function Commands({ commands }: Props) {
                                 <div className="text-heading6 font-semibold text-steel-darker">
                                     {commandName}
                                 </div>
-                                <div className="text-bodyMedium text-steel">
+                                <div className="text-bodyMedium pt-2 text-steel">
                                     ({formattedCommandData})
                                 </div>
                             </li>
