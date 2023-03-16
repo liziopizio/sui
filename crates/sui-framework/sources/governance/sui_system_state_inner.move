@@ -565,6 +565,7 @@ module sui::sui_system_state_inner {
     ) {
         let validator = validator_set::get_validator_mut_with_ctx(&mut self.validators, ctx);
         validator::update_next_epoch_protocol_pubkey(validator, protocol_pubkey, proof_of_possession);
+        validator_set::assert_no_pending_duplicates(&mut self.validators, ctx);
     }
 
     /// Update candidate validator's public key of protocol key and proof of possession.
@@ -576,6 +577,7 @@ module sui::sui_system_state_inner {
     ) {
         let candidate = validator_set::get_validator_mut_with_ctx_including_candidates(&mut self.validators, ctx);
         validator::update_candidate_protocol_pubkey(candidate, protocol_pubkey, proof_of_possession);
+        validator_set::assert_no_pending_duplicates(&mut self.validators, ctx);
     }
 
     /// Update a validator's public key of worker key.

@@ -666,6 +666,7 @@ module sui::validator {
 
     /// Update protocol public key of this candidate validator
     public(friend) fun update_candidate_protocol_pubkey(self: &mut Validator, protocol_pubkey: vector<u8>, proof_of_possession: vector<u8>) {
+        // What does this mean?
         assert!(is_preactive(self), ENotValidatorCandidate);
         self.metadata.protocol_pubkey_bytes = protocol_pubkey;
         self.metadata.proof_of_possession = proof_of_possession;

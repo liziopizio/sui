@@ -214,6 +214,21 @@ module sui::validator_set {
         table_vec::push_back(&mut self.pending_active_validators, validator);
     }
 
+    public(friend) fun assert_no_pending_duplicates(self: &mut ValidatorSet, ctx: &mut TxContext) {
+        let validator_address = tx_context::sender(ctx);
+        assert!(
+            table::contains(&self.pending_active_validators, validator_address),
+            ENotActiveOrPendingValidator
+        );
+        let validator = table::remove(&mut self.pending_active_validators, validator_address);
+        assert!(
+            !is_duplicate_with_active_validator(self, &validator)
+                && !is_duplicate_with_pending_validator(self, &validator),
+            EDuplicateValidator
+        );
+        table::add(&mut self.pending_active_validators, validator_address, validator);
+    }
+
     /// Called by `sui_system`, to remove a validator.
     /// The index of the validator is added to `pending_removals` and
     /// will be processed at the end of epoch.
