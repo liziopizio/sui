@@ -28,6 +28,7 @@ use rand::{
     Rng, SeedableRng,
 };
 use serde_json::json;
+use sui_framework::{make_system_objects, make_system_packages};
 use tracing::info;
 
 use sui_json_rpc_types::{
@@ -3140,7 +3141,9 @@ async fn test_genesis_sui_system_state_object() {
 async fn test_sui_system_state_nop_upgrade() {
     use sui_adapter::programmable_transactions;
     use sui_types::sui_system_state::SUI_SYSTEM_STATE_TESTING_VERSION1;
-    use sui_types::{MOVE_STDLIB_ADDRESS, SUI_SYSTEM_STATE_OBJECT_SHARED_VERSION};
+    use sui_types::{
+        MOVE_STDLIB_ADDRESS, SUI_FRAMEWORK_ADDRESS, SUI_SYSTEM_STATE_OBJECT_SHARED_VERSION,
+    };
 
     let authority_state = init_state().await;
 

@@ -24,6 +24,7 @@ use prometheus::{
 };
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use sui_framework::{MoveStdlib, SuiFramework, SystemPackage};
 use tap::TapFallible;
 use tokio::sync::mpsc::unbounded_channel;
 use tokio::sync::oneshot;
@@ -2852,17 +2853,17 @@ impl AuthorityState {
     /// compatible with the current versions of those packages on-chain.
     pub async fn get_available_system_packages(&self) -> Vec<ObjectRef> {
         let Some(move_stdlib) = self.compare_system_package(
-            MOVE_STDLIB_OBJECT_ID,
-            sui_framework::get_move_stdlib(),
-            sui_framework::get_move_stdlib_transitive_dependencies(),
+            MoveStdlib::ID,
+            MoveStdlib::as_modules(),
+            MoveStdlib::transitive_dependencies(),
         ).await else {
             return vec![];
         };
 
         let Some(sui_framework) = self.compare_system_package(
-            SUI_FRAMEWORK_OBJECT_ID,
+            SuiFramework::ID,
             sui_framework_injection::get_modules(self.name),
-            sui_framework::get_sui_framework_transitive_dependencies(),
+            SuiFramework::transitive_dependencies(),
         ).await else {
             return vec![];
         };
@@ -2985,13 +2986,13 @@ impl AuthorityState {
             }
 
             let (bytes, dependencies) = match system_package.0 {
-                MOVE_STDLIB_OBJECT_ID => (
-                    sui_framework::get_move_stdlib_bytes(),
-                    sui_framework::get_move_stdlib_transitive_dependencies(),
+                MoveStdlib::ID => (
+                    MoveStdlib::as_bytes(),
+                    MoveStdlib::transitive_dependencies(),
                 ),
-                SUI_FRAMEWORK_OBJECT_ID => (
+                SuiFramework::ID => (
                     sui_framework_injection::get_bytes(self.name),
-                    sui_framework::get_sui_framework_transitive_dependencies(),
+                    SuiFramework::transitive_dependencies(),
                 ),
                 _ => panic!("Unrecognised framework: {}", system_package.0),
             };
@@ -3324,20 +3325,20 @@ pub mod sui_framework_injection {
 
     pub fn get_bytes(name: AuthorityName) -> Vec<Vec<u8>> {
         OVERRIDE.with(|cfg| match &*cfg.borrow() {
-            FrameworkOverrideConfig::Default => sui_framework::get_sui_framework_bytes(),
+            FrameworkOverrideConfig::Default => SuiFramework::as_bytes(),
             FrameworkOverrideConfig::Global(framework) => compiled_modules_to_bytes(framework),
             FrameworkOverrideConfig::PerValidator(func) => func(name)
                 .map(|fw| compiled_modules_to_bytes(&fw))
-                .unwrap_or_else(sui_framework::get_sui_framework_bytes),
+                .unwrap_or_else(SuiFramework::as_bytes),
         })
     }
 
     pub fn get_modules(name: AuthorityName) -> Vec<CompiledModule> {
         OVERRIDE.with(|cfg| match &*cfg.borrow() {
-            FrameworkOverrideConfig::Default => sui_framework::get_sui_framework(),
+            FrameworkOverrideConfig::Default => SuiFramework::as_modules(),
             FrameworkOverrideConfig::Global(framework) => framework.clone(),
             FrameworkOverrideConfig::PerValidator(func) => {
-                func(name).unwrap_or_else(sui_framework::get_sui_framework)
+                func(name).unwrap_or_else(SuiFramework::as_modules)
             }
         })
     }
@@ -3350,10 +3351,10 @@ pub mod sui_framework_injection {
     use super::*;
 
     pub fn get_bytes(_name: AuthorityName) -> Vec<Vec<u8>> {
-        sui_framework::get_sui_framework_bytes()
+        SuiFramework::as_bytes()
     }
 
     pub fn get_modules(_name: AuthorityName) -> Vec<CompiledModule> {
-        sui_framework::get_sui_framework()
+        SuiFramework::as_modules()
     }
 }
