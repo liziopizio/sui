@@ -29,8 +29,6 @@ export function Commands({ commands }: Props) {
         return null;
     }
 
-    console.log('commands', commands);
-
     return (
         <div data-testid="programmable-transactions-commands" className="mt-8">
             <section
