@@ -555,7 +555,7 @@ module sui::validator {
             || is_equal_some_and_value(&other.metadata.next_epoch_protocol_pubkey_bytes,&self.metadata.protocol_pubkey_bytes)
             || is_equal_some_and_value(&other.metadata.next_epoch_network_pubkey_bytes,&self.metadata.network_pubkey_bytes)
             || is_equal_some_and_value(&other.metadata.next_epoch_worker_pubkey_bytes,&self.metadata.worker_pubkey_bytes)
-        // What about primary_address & worker_address?
+        // TODO[ben] - What about primary_address & worker_address?
     }
 
     fun is_equal_some_and_value<T>(a: &Option<T>, b: &T): bool {
@@ -666,7 +666,7 @@ module sui::validator {
 
     /// Update protocol public key of this candidate validator
     public(friend) fun update_candidate_protocol_pubkey(self: &mut Validator, protocol_pubkey: vector<u8>, proof_of_possession: vector<u8>) {
-        // What does this mean?
+        // TODO[ben] - What does this mean? is this candidate / pending / active?
         assert!(is_preactive(self), ENotValidatorCandidate);
         self.metadata.protocol_pubkey_bytes = protocol_pubkey;
         self.metadata.proof_of_possession = proof_of_possession;

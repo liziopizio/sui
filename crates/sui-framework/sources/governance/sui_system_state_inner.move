@@ -565,6 +565,7 @@ module sui::sui_system_state_inner {
     ) {
         let validator = validator_set::get_validator_mut_with_ctx(&mut self.validators, ctx);
         validator::update_next_epoch_protocol_pubkey(validator, protocol_pubkey, proof_of_possession);
+        // TODO[ben]: nicer way?
         let validator :&Validator = validator; // force immutability
         validator_set::assert_no_pending_duplicates(&self.validators, validator);
     }

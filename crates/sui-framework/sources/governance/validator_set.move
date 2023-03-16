@@ -215,6 +215,7 @@ module sui::validator_set {
     }
 
     public(friend) fun assert_no_pending_duplicates(self: &ValidatorSet, validator: &Validator) {
+        // TODO[ben] - currently assumes that the validator is pending. fix this.
         assert!(
             // Should always includes only the current validator.
             count_duplicate_with_pending_validator(self, validator) == 1 &&
@@ -671,6 +672,7 @@ module sui::validator_set {
         get_active_or_pending_or_candidate_validator_mut(self, *validator_cap::verified_operation_cap_address(verified_cap), include_candidate)
     }
 
+    // TODO[ben] - why the next 2 functions are the same?
     public(friend) fun get_validator_mut_with_ctx(
         self: &mut ValidatorSet,
         ctx: &TxContext,
