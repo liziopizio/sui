@@ -3,16 +3,16 @@
 
 import { CoinFormat, useFormatCoin } from '@mysten/core';
 import {
-    getTransactionKindName,
+    getExecutionStatusError,
+    getExecutionStatusType,
+    getGasData,
+    getTotalGasUsed,
+    getTransactionDigest,
     getTransactionKind,
+    getTransactionKindName,
     getTransactionSender,
     SUI_TYPE_ARG,
-    getExecutionStatusType,
-    getTotalGasUsed,
-    getExecutionStatusError,
     type SuiTransactionResponse,
-    getGasData,
-    getTransactionDigest,
 } from '@mysten/sui.js';
 import clsx from 'clsx';
 import { useMemo, useState } from 'react';
@@ -21,16 +21,17 @@ import { useMemo, useState } from 'react';
 //     eventToDisplay,
 //     getAddressesLinks,
 // } from '../../components/events/eventDisplay';
-import Pagination from '../../components/pagination/Pagination';
-import { getAmount } from '../../utils/getAmount';
-import { Signatures } from './Signatures';
-import TxLinks from './TxLinks';
+import Pagination from '../../../components/pagination/Pagination';
+import { getAmount } from '../../../utils/getAmount';
+import { Signatures } from '../Signatures';
+import TxLinks from '../TxLinks';
 
-import styles from './TransactionResult.module.css';
+import styles from '../TransactionResult.module.css';
 
+import { ProgrammableTransactionView } from '~/pages/transaction-result/transaction-view/ProgrammableTransactionView';
 import { Banner } from '~/ui/Banner';
 import { DateCard } from '~/ui/DateCard';
-import { DescriptionList, DescriptionItem } from '~/ui/DescriptionList';
+import { DescriptionItem, DescriptionList } from '~/ui/DescriptionList';
 import { ObjectLink } from '~/ui/InternalLink';
 import { PageHeader } from '~/ui/PageHeader';
 import { StatAmount } from '~/ui/StatAmount';
@@ -190,6 +191,9 @@ export function TransactionView({
     const isSponsoredTransaction = gasOwner !== sender;
 
     const timestamp = transaction.timestampMs;
+    const transactionKindName = getTransactionKindName(
+        getTransactionKind(transaction)!
+    );
 
     return (
         <div className={clsx(styles.txdetailsbg)}>
@@ -197,9 +201,7 @@ export function TransactionView({
                 <PageHeader
                     type="Transaction"
                     title={getTransactionDigest(transaction)}
-                    subtitle={getTransactionKindName(
-                        getTransactionKind(transaction)!
-                    )}
+                    subtitle={transactionKindName}
                     status={getExecutionStatusType(transaction)}
                 />
                 {txError && (
@@ -293,6 +295,13 @@ export function TransactionView({
                                 </div>
                             </section>
                         </div>
+
+                        {transactionKindName === 'ProgrammableTransaction' && (
+                            <ProgrammableTransactionView
+                                transaction={transaction}
+                            />
+                        )}
+
                         <div data-testid="gas-breakdown" className="mt-8">
                             <TableHeader
                                 subText={

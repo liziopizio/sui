@@ -84,7 +84,7 @@ export const SuiCommand = union([
 ]);
 
 export const ProgrammableTransaction = object({
-  commands: array(),
+  commands: array(SuiCommand),
   inputs: array(SuiJsonValue),
 });
 export type ProgrammableTransaction = Infer<typeof ProgrammableTransaction>;
