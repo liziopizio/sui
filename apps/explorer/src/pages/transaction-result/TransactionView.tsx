@@ -11,6 +11,7 @@ import {
     getTransactionKind,
     getTransactionKindName,
     getTransactionSender,
+    type ProgrammableTransaction,
     SUI_TYPE_ARG,
     type SuiTransactionResponse,
 } from '@mysten/sui.js';
@@ -298,7 +299,10 @@ export function TransactionView({
 
                         {transactionKindName === 'ProgrammableTransaction' && (
                             <ProgrammableTransactionView
-                                transaction={transaction}
+                                transaction={
+                                    transaction.transaction!.data
+                                        .transaction as ProgrammableTransaction
+                                }
                             />
                         )}
 

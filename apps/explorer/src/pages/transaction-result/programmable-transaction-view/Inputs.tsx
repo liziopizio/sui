@@ -27,7 +27,7 @@ export function Inputs({ inputs }: Props) {
                     {inputs.map((input) => {
                         if (Array.isArray(input)) {
                             const readableInput = toB64(
-                                input as unknown as Uint8Array
+                                new Uint8Array(input as unknown as Uint8Array)
                             );
                             return (
                                 <li key={readableInput}>

@@ -38,17 +38,19 @@ export function Commands({ commands }: Props) {
                 <ul className="flex flex-col gap-8">
                     {commands.map((command, index) => {
                         const commandName = Object.keys(command)[0];
-                        const commandData: any =
+                        const commandData =
                             command[commandName as keyof typeof command];
                         const formattedCommandData =
                             formatCommandData(commandData);
 
                         return (
-                            <li key={`${commandName}-${index}`}>
+                            <li key={index}>
                                 <div className="text-heading6 font-semibold text-steel-darker">
                                     {commandName}
                                 </div>
-                                <div className="text-bodyMedium text-steel">{`(${formattedCommandData})`}</div>
+                                <div className="text-bodyMedium text-steel">
+                                    ({formattedCommandData})
+                                </div>
                             </li>
                         );
                     })}
