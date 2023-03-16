@@ -560,8 +560,11 @@ fn publish_and_verify_modules<E: fmt::Debug, S: StorageView<E>, Mode: ExecutionM
     let mut modules = module_bytes
         .iter()
         .map(|b| {
-            CompiledModule::deserialize(b)
-                .map_err(|e| e.finish(move_binary_format::errors::Location::Undefined))
+            CompiledModule::deserialize_with_max_version(
+                b,
+                context.protocol_config.move_binary_format_version(),
+            )
+            .map_err(|e| e.finish(move_binary_format::errors::Location::Undefined))
         })
         .collect::<move_binary_format::errors::VMResult<Vec<CompiledModule>>>()
         .map_err(|e| context.convert_vm_error(e))?;

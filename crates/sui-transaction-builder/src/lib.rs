@@ -406,6 +406,8 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             package.linkage_table,
         )?;
 
+        let max_binary_format_version =
+            ProtocolConfig::get_for_min_version().move_binary_format_version();
         let json_args_and_tokens = resolve_move_function_args(
             &package,
             module.clone(),
@@ -413,6 +415,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
             type_args,
             json_args,
             Mode::allow_arbitrary_function_calls(),
+            max_binary_format_version,
         )?;
         let mut check_args = Vec::new();
         let mut objects = BTreeMap::new();
@@ -434,7 +437,7 @@ impl<Mode: ExecutionMode> TransactionBuilder<Mode> {
                 }
             })
         }
-        let compiled_module = package.deserialize_module(module)?;
+        let compiled_module = package.deserialize_module(module, max_binary_format_version)?;
 
         // TODO set the Mode from outside?
         resolve_and_type_check::<Mode>(

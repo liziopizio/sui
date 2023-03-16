@@ -5,6 +5,7 @@ use std::path::Path;
 use std::str::FromStr;
 
 use fastcrypto::encoding::{Encoding, Hex};
+use move_binary_format::file_format_common::VERSION_MAX;
 use move_core_types::u256::U256;
 use move_core_types::{
     account_address::AccountAddress, identifier::Identifier, value::MoveTypeLayout,
@@ -475,6 +476,7 @@ fn test_basic_args_linter_top_level() {
         &[],
         args,
         /* allow_arbitrary_function_call */ false,
+        VERSION_MAX,
     )
     .unwrap();
 
@@ -519,7 +521,8 @@ fn test_basic_args_linter_top_level() {
         function,
         &[],
         args,
-        /* allow_arbitrary_function_call */ false
+        /* allow_arbitrary_function_call */ false,
+        VERSION_MAX
     )
     .is_err());
 
@@ -565,6 +568,7 @@ fn test_basic_args_linter_top_level() {
         &[],
         args,
         /* allow_arbitrary_function_call */ false,
+        VERSION_MAX,
     )
     .unwrap();
 
@@ -609,6 +613,7 @@ fn test_basic_args_linter_top_level() {
         &[],
         args,
         /* allow_arbitrary_function_call */ false,
+        VERSION_MAX,
     )
     .unwrap();
 
@@ -662,6 +667,7 @@ fn test_basic_args_linter_top_level() {
         &[],
         args,
         /* allow_arbitrary_function_call */ false,
+        VERSION_MAX,
     )
     .unwrap();
 

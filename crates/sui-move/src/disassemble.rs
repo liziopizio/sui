@@ -57,6 +57,8 @@ impl Disassemble {
         let mut bytes = Vec::new();
         let mut file = BufReader::new(File::open(self.module_path)?);
         file.read_to_end(&mut bytes)?;
+        // TODO: should we have an argument putting a cap on the version of bytecode that should be
+        // deserialized here (currently MAX_VERSION)
         let module = CompiledModule::deserialize(&bytes)?;
 
         if self.debug {
