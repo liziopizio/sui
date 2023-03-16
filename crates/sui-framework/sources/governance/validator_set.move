@@ -53,7 +53,7 @@ module sui::validator_set {
         /// is added to this table so that stakers can continue to withdraw their stake from it.
         inactive_validators: Table<ID, ValidatorWrapper>,
 
-        /// Table storing preactive validators, mapping their addresses to their `Validator ` structs.
+        /// Table storing preactive/candidate validators, mapping their addresses to their `Validator ` structs.
         /// When an address calls `request_add_validator_candidate`, they get added to this table and become a preactive
         /// validator.
         /// When the candidate has met the min stake requirement, they can call `request_add_validator` to
@@ -149,17 +149,19 @@ module sui::validator_set {
 
     /// Called by `sui_system` to add a new validator candidate.
     public(friend) fun request_add_validator_candidate(self: &mut ValidatorSet, validator: Validator) {
+        // The next assertions are not critical for the protocol, but they are here to catch problematic configs earlier.
         assert!(
             !is_duplicate_with_active_validator(self, &validator)
                 && !is_duplicate_with_pending_validator(self, &validator),
             EDuplicateValidator
         );
-        assert!(validator::is_preactive(&validator), EValidatorNotCandidate);
         let validator_address = sui_address(&validator);
         assert!(
             !table::contains(&self.validator_candidates, validator_address),
             EAlreadyValidatorCandidate
         );
+
+        assert!(validator::is_preactive(&validator), EValidatorNotCandidate);
         // Add validator to the candidates mapping and the pool id mappings so that users can start
         // staking with this candidate.
         table::add(&mut self.staking_pool_mappings, staking_pool_id(&validator), validator_address);
@@ -372,6 +374,7 @@ module sui::validator_set {
         emit_validator_epoch_events(new_epoch, &self.active_validators, &adjusted_staking_reward_amounts,
             &adjusted_storage_fund_reward_amounts, validator_report_records, &slashed_validators);
 
+        // Note that all their staged next epoch metadata will be effectuated below.
         process_pending_validators(self, new_epoch);
 
         process_pending_removals(self, validator_report_records, ctx);
