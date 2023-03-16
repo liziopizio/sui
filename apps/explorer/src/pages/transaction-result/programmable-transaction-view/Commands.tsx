@@ -1,9 +1,7 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 import { type ProgrammableTransactionCommand } from '@mysten/sui.js';
-import clsx from 'clsx';
 
-import styles from '~/pages/transaction-result/TransactionResult.module.css';
 import { TableHeader } from '~/ui/TableHeader';
 
 interface Props {
@@ -31,9 +29,7 @@ export function Commands({ commands }: Props) {
 
     return (
         <div data-testid="programmable-transactions-commands" className="mt-8">
-            <section
-                className={clsx([styles.txcomponent, styles.txgridcolspan2])}
-            >
+            <section className="pt-4 pb-4">
                 <TableHeader>Commands</TableHeader>
                 <ul className="flex flex-col gap-8">
                     {commands.map((command, index) => {

@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type SuiJsonValue, toB64 } from '@mysten/sui.js';
-import clsx from 'clsx';
 
-import styles from '~/pages/transaction-result/TransactionResult.module.css';
 import { AddressOrObject } from '~/pages/transaction-result/programmable-transaction-view/AddressOrObject';
 import { TableHeader } from '~/ui/TableHeader';
 
@@ -19,9 +17,7 @@ export function Inputs({ inputs }: Props) {
 
     return (
         <div data-testid="programmable-transactions-inputs" className="mt-8">
-            <section
-                className={clsx([styles.txcomponent, styles.txgridcolspan2])}
-            >
+            <section className="pt-4 pb-4">
                 <TableHeader>Inputs</TableHeader>
                 <ul className="flex flex-col gap-y-3">
                     {inputs.map((input) => {
