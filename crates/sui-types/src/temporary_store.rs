@@ -541,6 +541,64 @@ impl<S> TemporaryStore<S> {
             self.reset(gas, gas_status);
         }
 
+        if let Err(err) = self.charge_gas_for_storage_changes(gas_status, gas_object_id) {
+            // Ran out of gas while charging for storage changes. reset store, now at state just after gas smashing
+            self.reset(gas, gas_status);
+
+            // charge for storage again. This will now account only for the storage cost of gas coins
+            if self
+                .charge_gas_for_storage_changes(gas_status, gas_object_id)
+                .is_err()
+            {
+                // TODO: this shouldn't happen, because we should check that the budget is enough to cover the storage costs of gas coins at signing time
+                // perhaps that check isn't there?
+                trace!("out of gas while charging for gas smashing")
+            }
+
+            // if execution succeeded, but we ran out of gas while charging for storage, overwrite the successful execution result
+            // with an out of gas failure
+            if execution_result.is_ok() {
+                *execution_result = Err(err)
+            }
+        }
+        let cost_summary = gas_status.summary();
+        let gas_used = cost_summary.gas_used();
+
+        // Important to fetch the gas object here instead of earlier, as it may have been reset
+        // previously in the case of error.
+        let mut gas_object = self.read_object(&gas_object_id).unwrap().clone();
+        gas::deduct_gas(
+            &mut gas_object,
+            gas_used,
+            cost_summary.sender_rebate(self.storage_rebate_rate),
+        );
+        trace!(gas_used, gas_obj_id =? gas_object.id(), gas_obj_ver =? gas_object.version(), "Updated gas object");
+
+        self.write_object(gas_object, WriteKind::Mutate);
+        self.gas_charged = Some((gas_object_id, cost_summary));
+    }
+
+    pub fn charge_gas_legacy<T>(
+        &mut self,
+        gas_object_id: ObjectID,
+        gas_status: &mut SuiGasStatus<'_>,
+        execution_result: &mut Result<T, ExecutionError>,
+        gas: &[ObjectRef],
+    ) {
+        // at this point, we have done some charging for computation, but have not yet set the storage rebate or storage gas units
+        assert!(gas_status.storage_rebate() == 0);
+        assert!(gas_status.storage_gas_units() == 0);
+
+        if let Err(err) = gas_status.bucketize_computation_legacy() {
+            if execution_result.is_ok() {
+                *execution_result = Err(err);
+            }
+        }
+        if execution_result.is_err() {
+            // Tx execution aborted--need to dump writes, deletes, etc before charging storage gas
+            self.reset(gas, gas_status);
+        }
+
         if let Err(err) = self
             .charge_gas_for_storage_changes(gas_status, gas_object_id)
             .and_then(|total_bytes_written_deleted| {
