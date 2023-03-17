@@ -4,7 +4,6 @@
 use std::path::Path;
 #[cfg(not(msim))]
 use std::str::FromStr;
-use std::time::Duration;
 
 use sui_config::SUI_KEYSTORE_FILENAME;
 use sui_framework_build::compiled_package::BuildConfig;
@@ -29,7 +28,6 @@ use sui_types::query::TransactionFilter;
 use sui_types::utils::to_sender_signed_transaction;
 use sui_types::{parse_sui_struct_tag, parse_sui_type_tag, SUI_FRAMEWORK_ADDRESS};
 use test_utils::network::TestClusterBuilder;
-use tokio::time::sleep;
 
 use crate::api::{
     CoinReadApiClient, GovernanceReadApiClient, ReadApiClient, TransactionBuilderClient,
