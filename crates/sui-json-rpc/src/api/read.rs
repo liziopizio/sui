@@ -7,9 +7,9 @@ use std::collections::BTreeMap;
 use sui_json_rpc_types::{
     Checkpoint, CheckpointId, CheckpointPage, DynamicFieldPage, MoveFunctionArgType, ObjectsPage,
     SuiGetPastObjectRequest, SuiMoveNormalizedFunction, SuiMoveNormalizedModule,
-    SuiMoveNormalizedStruct, SuiObjectDataOptions, SuiObjectResponse,
-    SuiPastObjectResponse, SuiTransactionResponse, SuiTransactionResponseOptions,
-    SuiTransactionResponseQuery, TransactionsPage,
+    SuiMoveNormalizedStruct, SuiObjectDataOptions, SuiObjectResponse, SuiPastObjectResponse,
+    SuiTransactionResponse, SuiTransactionResponseOptions, SuiTransactionResponseQuery,
+    TransactionsPage,
 };
 use sui_open_rpc_macros::open_rpc;
 use sui_types::base_types::{
