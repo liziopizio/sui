@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["admin","config","consumer","handlers","middleware","peers","prom_to_mimir","remote_write"]};
