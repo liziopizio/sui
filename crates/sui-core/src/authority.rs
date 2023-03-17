@@ -2420,23 +2420,32 @@ impl AuthorityState {
         &self,
         // exclusive cursor if `Some`, otherwise start from the beginning
         cursor: Option<CheckpointSequenceNumber>,
-        limit: usize,
+        limit: Option<usize>,
         reverse: bool,
     ) -> Result<Vec<Checkpoint>, anyhow::Error> {
         let max_checkpoint = self.get_latest_checkpoint_sequence_number()?;
-        // let values = (c..=end_index).collect::<Vec<_>>();
 
+        let mut cursor = cursor.unwrap_or(0);
+        if cursor != 0 && !reverse {
+            cursor += 1;
+        }
+        let limit = limit.unwrap_or(1) as u64;
 
-        let c = cursor.unwrap_or(0);
-        let l = limit as u64;
+        let end_index = std::cmp::min(cursor + limit, max_checkpoint);
+        let mut values = (cursor..=end_index).collect::<Vec<_>>();
 
-        let mut end_index = std::cmp::min(c + l + 1, max_checkpoint);
-
-        if reverse {
-            end_index = std::cmp::max(c + l + 1, max_checkpoint);
+        if reverse && cursor == 0 {
+            cursor = max_checkpoint
         }
 
-        let values = (c..=end_index).collect::<Vec<_>>();
+        if reverse {
+            let mut start_index = 0;
+            if let Some(_result) = cursor.checked_sub(limit) {
+                start_index = std::cmp::max(cursor - limit, 0);
+            }
+            values = (start_index..=(cursor - 1)).collect::<Vec<_>>();
+        }
+
         let mut checkpoint_numbers = values;
 
         if reverse {

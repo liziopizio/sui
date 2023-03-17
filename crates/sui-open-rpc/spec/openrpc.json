@@ -454,10 +454,10 @@
       "params": [
         {
           "name": "cursor",
-          "description": "Optional paging cursor",
+          "description": "exclusive cursor if `Some`, otherwise start from the beginning",
           "schema": {
             "type": "integer",
-            "format": "uint",
+            "format": "uint64",
             "minimum": 0.0
           }
         },
@@ -483,7 +483,7 @@
         "name": "CheckpointPage",
         "required": true,
         "schema": {
-          "$ref": "#/components/schemas/Page_for_Checkpoint_and_uint"
+          "$ref": "#/components/schemas/Page_for_Checkpoint_and_uint64"
         }
       }
     },
@@ -4593,7 +4593,7 @@
           }
         ]
       },
-      "Page_for_Checkpoint_and_uint": {
+      "Page_for_Checkpoint_and_uint64": {
         "description": "`next_cursor` points to the last item in the page; Reading with `next_cursor` will start from the next item after `next_cursor` if `next_cursor` is `Some`, otherwise it will start from the first item.",
         "type": "object",
         "required": [
@@ -4615,7 +4615,7 @@
               "integer",
               "null"
             ],
-            "format": "uint",
+            "format": "uint64",
             "minimum": 0.0
           }
         }

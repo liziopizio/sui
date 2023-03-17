@@ -59,6 +59,7 @@ use crate::{
 };
 
 const MAX_DISPLAY_NESTED_LEVEL: usize = 10;
+const QUERY_MAX_RESULT_LIMIT_CHECKPOINTS: usize = 20;
 
 // An implementation of the read portion of the JSON-RPC interface intended for use in
 // Fullnodes.
@@ -782,27 +783,24 @@ impl ReadApiServer for ReadApi {
         limit: Option<usize>,
         descending_order: bool,
     ) -> RpcResult<CheckpointPage> {
-        let limit = cap_page_limit(limit);
+        let mut limit = limit.unwrap_or_default();
+        if limit > QUERY_MAX_RESULT_LIMIT_CHECKPOINTS || limit == 0 {
+            limit = QUERY_MAX_RESULT_LIMIT_CHECKPOINTS;
+        }
 
-        let checkpoints = self
+        let mut data = self
             .state
-            .get_checkpoints(cursor, limit, descending_order)?;
+            .get_checkpoints(cursor, Some(limit + 1), descending_order)?;
 
-        let start_index = cursor.unwrap_or(0) as usize;
+        let has_next_page = data.len() > limit;
 
-        let end_index = std::cmp::min(start_index + limit, checkpoints.len());
-        let mut data = checkpoints[start_index..end_index].to_vec();
-
-        let end_idx = end_index as u64;
-        println!("end_indx: {}", end_idx);
+        data.truncate(limit);
 
         let mut next_cursor = Some(data.last().unwrap().sequence_number);
 
-        let has_next_page = checkpoints.len() >= end_index;
         if !has_next_page {
             next_cursor = None;
         }
-        data.truncate(limit);
 
         Ok(CheckpointPage {
             data,

@@ -1056,14 +1056,14 @@ export class JsonRpcProvider {
   }
 
   async getCheckpoints(input: {
-    cursor?: number | null;
-    limit?: number | null;
-    descending_order: boolean;
+    cursor?: number;
+    limit?: number;
+    descendingOrder: boolean;
   }): Promise<CheckpointPage> {
     try {
       const resp = await this.client.requestWithType(
         'sui_getCheckpoints',
-        [input.cursor, input.limit, input.descending_order],
+        [input.cursor, input.limit, input.descendingOrder],
         CheckpointPage,
         this.options.skipDataValidation,
       );

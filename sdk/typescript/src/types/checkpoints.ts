@@ -37,9 +37,9 @@ export const CheckpointCommitment = union([ECMHLiveObjectSetDigest]);
 export type CheckpointCommitment = Infer<typeof CheckpointCommitment>;
 
 export const EndOfEpochData = object({
-  nextEpochCommittee: array(tuple([string(), number()])),
-  nextEpochProtocolVersion: number(),
-  checkpointCommitments: array(CheckpointCommitment),
+  next_epoch_committee: array(tuple([string(), number()])),
+  next_epoch_protocol_version: number(),
+  epoch_commitments: array(CheckpointCommitment),
 });
 export type EndOfEpochData = Infer<typeof EndOfEpochData>;
 
