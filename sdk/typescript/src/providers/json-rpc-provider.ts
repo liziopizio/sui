@@ -1061,9 +1061,9 @@ export class JsonRpcProvider {
   async getCheckpoints(input: {
     /** exclusive cursor if `Some`, otherwise start from the beginning */
     cursor?: number;
-    /** Maximum item returned per page, default to 20 if not specified. */ 
+    /** Maximum item returned per page, default to 20 if not specified. */
     limit?: number;
-    /** query result ordering, default to false (ascending order), oldest record first. */
+    /** query result ordering, default to false (ascending order), oldest record first.s */
     descendingOrder: boolean;
   }): Promise<CheckpointPage> {
     try {
