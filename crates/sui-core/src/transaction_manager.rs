@@ -5,6 +5,7 @@ use std::{
     collections::{BTreeSet, HashMap, HashSet},
     sync::Arc,
 };
+use std::time::Instant;
 
 use parking_lot::RwLock;
 use sui_types::{
@@ -35,9 +36,11 @@ pub struct TransactionManager {
     inner: RwLock<Inner>,
 }
 
+
 struct PendingCertificate {
     certificate: VerifiedExecutableTransaction,
     missing: BTreeSet<InputKey>,
+    instant: Instant,
 }
 
 #[derive(Default)]
@@ -152,6 +155,7 @@ impl TransactionManager {
                             .expect("Checking object existence cannot fail!")
                     })
                     .collect(),
+                instant: Instant::now(),
             });
         }
 
@@ -328,6 +332,7 @@ impl TransactionManager {
                 if pending_cert.missing.is_empty() {
                     debug!(tx_digest = ?digest, "certificate ready");
                     let pending_cert = inner.pending_certificates.remove(&digest).unwrap();
+                    self.metrics.tx_pending_latency.observe((Instant::now() - pending_cert.instant).as_secs_f64());
                     assert!(inner.executing_certificates.insert(digest));
                     ready_digests.push(digest);
                     self.certificate_ready(pending_cert.certificate);

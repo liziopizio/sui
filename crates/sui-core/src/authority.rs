@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::{collections::HashMap, fs, pin::Pin, sync::Arc};
 
 use anyhow::anyhow;
@@ -186,6 +186,10 @@ pub struct AuthorityMetrics {
     commit_certificate_latency: Histogram,
     db_checkpoint_latency: Histogram,
 
+    pub(crate) tx_pending_latency: Histogram,
+    pub(crate) tx_waiting_for_permit_latency: Histogram,
+    pub(crate) tx_notify_read_effects_latency: Histogram,
+
     pub(crate) transaction_manager_num_enqueued_certificates: IntCounterVec,
     pub(crate) transaction_manager_num_missing_objects: IntGauge,
     pub(crate) transaction_manager_num_pending_certificates: IntGauge,
@@ -329,6 +333,25 @@ impl AuthorityMetrics {
                 LATENCY_SEC_BUCKETS.to_vec(),
                 registry,
             ).unwrap(),
+            tx_pending_latency: register_histogram_with_registry!(
+                "tx_pending_latency",
+                "Latency of checkpointing dbs",
+                LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            ).unwrap(),
+            tx_waiting_for_permit_latency: register_histogram_with_registry!(
+                "tx_waiting_for_permit_latency",
+                "Latency of checkpointing dbs",
+                LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            ).unwrap(),
+            tx_notify_read_effects_latency: register_histogram_with_registry!(
+                "tx_notify_read_effects_latency",
+                "Latency of checkpointing dbs",
+                LATENCY_SEC_BUCKETS.to_vec(),
+                registry,
+            ).unwrap(),
+
             transaction_manager_num_enqueued_certificates: register_int_counter_vec_with_registry!(
                 "transaction_manager_num_enqueued_certificates",
                 "Current number of certificates enqueued to TransactionManager",
@@ -689,8 +712,9 @@ impl AuthorityState {
             // For owned object transactions, we can enqueue the certificate for execution immediately.
             self.enqueue_certificates_for_execution(vec![certificate.clone()], epoch_store)?;
         }
-
+        let now = Instant::now();
         let effects = self.notify_read_effects(certificate).await?;
+        self.metrics.tx_notify_read_effects_latency.observe((Instant::now() - now).as_secs_f64());
         self.sign_effects(effects, epoch_store)
     }
 

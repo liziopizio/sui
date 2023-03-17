@@ -5,6 +5,7 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
+use std::time::Instant;
 
 use mysten_metrics::spawn_monitored_task;
 use sui_types::messages::VerifiedExecutableTransaction;
@@ -73,10 +74,11 @@ pub async fn execution_process(
         debug!(?digest, "Pending certificate execution activated.");
 
         let limit = limit.clone();
+        let now = Instant::now();
         // hold semaphore permit until task completes. unwrap ok because we never close
         // the semaphore in this context.
         let permit = limit.acquire_owned().await.unwrap();
-
+        authority.metrics.tx_waiting_for_permit_latency.observe((Instant::now() - now).as_secs_f64());
         // Certificate execution can take significant time, so run it in a separate task.
         spawn_monitored_task!(async move {
             let _guard = permit;
